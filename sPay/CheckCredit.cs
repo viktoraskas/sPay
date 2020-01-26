@@ -84,9 +84,8 @@ namespace sPay
                     //string TagString = Encoding.UTF8.GetString(TagByteArray, 0, TagByteArray.Length);
                     string TagString = new SoapHexBinary(TagByteArray).ToString();
                     //Toast.MakeText(this, TagString, ToastLength.Long).Show();
-                    //https://rv.naftosdujos.lt/ws2/r_card2/nf457dj88/9440394700005404/5404
                     client.BaseUrl = new Uri("https://rv.naftosdujos.lt/ws2/");
-                    var req = new RestRequest("r_card2/nf457dj88/9440394700005404/5404");
+                    var req = new RestRequest("r_card2/");
                     req.RequestFormat = DataFormat.Json;
                     var response = client.Get(req);
                     
