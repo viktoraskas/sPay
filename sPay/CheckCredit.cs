@@ -11,6 +11,11 @@ using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using sPay.BroadcastReceivers;
+using System.Runtime.Remoting.Metadata.W3cXsd2001;
+using RestSharp;
+using RestSharp.Serialization.Json;
+using sPay.Helpers;
+using Android.Support.V7.App;
 
 namespace sPay
 {
@@ -20,10 +25,12 @@ namespace sPay
         //Receiver receiver;
         //IntentFilter filter;
         NfcAdapter mNfcAdapter;
+        RestClient client;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            AppCompatDelegate.CompatVectorFromResourcesEnabled = true;
             SetContentView(Resource.Layout.CheckCreditLay);
             ImageView imageView1 = FindViewById<ImageView>(Resource.Id.imageView1);
             ImageView imageView2 = FindViewById<ImageView>(Resource.Id.imageView2);
@@ -40,6 +47,8 @@ namespace sPay
             //filter.AddAction("android.nfc.action.ADAPTER_STATE_CHANGED");
             //filter.AddAction("android.nfc.action.TRANSACTION_DETECTED");
             mNfcAdapter = NfcAdapter.GetDefaultAdapter(this);
+            client = new RestClient();
+            client.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
         }
         #region Broadcast events
         //private void Receiver_TrDiscovered(object sender, EventArgs e)
@@ -65,19 +74,51 @@ namespace sPay
 
         protected override void OnNewIntent(Intent intent)
         {
-            object obj = intent.GetParcelableExtra(NfcAdapter.ExtraTag);
-            if (obj != null && obj is Tag)
+            if (intent.Action == NfcAdapter.ActionTagDiscovered)
             {
-                Tag t = (Tag)obj;
-                byte[] id = t.GetId();
-                string[] techList = t.GetTechList();
-                int con = t.DescribeContents();
-                string objName = t.ToString();
-                Toast.MakeText(this, $"{objName} - {con}", ToastLength.Long).Show();
-            }
-            
-        }
+                string msgx = string.Empty;
+                var tag = intent.GetParcelableExtra(NfcAdapter.ExtraTag) as Tag;
+                if (tag != null)
+                {
+                    var TagByteArray = tag.GetId();
+                    //string TagString = Encoding.UTF8.GetString(TagByteArray, 0, TagByteArray.Length);
+                    string TagString = new SoapHexBinary(TagByteArray).ToString();
+                    //Toast.MakeText(this, TagString, ToastLength.Long).Show();
+                    //https://rv.naftosdujos.lt/ws2/r_card2/nf457dj88/9440394700005404/5404
+                    client.BaseUrl = new Uri("https://rv.naftosdujos.lt/ws2/");
+                    var req = new RestRequest("r_card2/nf457dj88/9440394700005404/5404");
+                    req.RequestFormat = DataFormat.Json;
+                    var response = client.Get(req);
+                    
+                    if (response.ResponseStatus==ResponseStatus.Error)
+                    {
+                        Toast.MakeText(this, "Problem with network", ToastLength.Short).Show();
+                        return;
+                    }
+                    
+                    if (response.StatusCode==System.Net.HttpStatusCode.OK)
+                    {
+                        Toast.MakeText(this, "HTTP - OK", ToastLength.Long).Show();
+                    }
+                    else
+                    {
+                        Toast.MakeText(this, "ERR", ToastLength.Long).Show();
+                    }
 
+                    //var res = response.Content;
+                    JsonDeserializer deserial = new JsonDeserializer();
+                    var JSONObj = deserial.Deserialize<rcard2>(response);
+                    string res = JSONObj.kreditas.ToString();
+                    //int rowCount = JSONObj["Count"]; //rowCount will be 234 based on the example {"Count":234} 
+
+                    var alertMessage = new Android.App.AlertDialog.Builder(this).Create();
+
+                    alertMessage.SetMessage(res);
+                    alertMessage.Show();
+
+                }
+            }
+        }
         protected override void OnResume()
         {
             base.OnResume();
@@ -90,6 +131,13 @@ namespace sPay
                 var intent = new Intent(this, GetType()).AddFlags(ActivityFlags.SingleTop);
                 var pendingIntent = PendingIntent.GetActivity(this, 0, intent, 0);
                 mNfcAdapter.EnableForegroundDispatch(this, pendingIntent, filters, null);
+            }
+            else
+            {
+                var alert = new Android.Support.V7.App.AlertDialog.Builder(this).Create();
+                alert.SetMessage("NFC is not supported on this device.");
+                alert.SetTitle("NFC Unavailable");
+                alert.Show();
             }
         }
         protected override void OnPause()

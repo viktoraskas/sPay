@@ -66,6 +66,7 @@
   <ItemGroup>
     <Compile Include="BroadcastReceivers\Receiver.cs" />
     <Compile Include="CheckCredit.cs" />
+    <Compile Include="Helpers\rcard2.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -105,6 +106,12 @@
     <AndroidResource Include="Resources\drawable\basket_outline.xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>12.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="RestSharp">
+      <Version>106.10.1</Version>
+    </PackageReference>
     <PackageReference Include="SkiaSharp">
       <Version>1.68.1.1</Version>
     </PackageReference>
@@ -124,6 +131,30 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\CheckCreditLay.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\mipmap-anydpi-v26\basket_outline.xml">
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\mipmap-anydpi-v26\credit_card_outline.xml">
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\mipmap-anydpi-v26\history.xml">
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\mipmap-anydpi-v26\shopping_outline.xml">
+      <Generator>MSBuild:UpdateGeneratedFiles</Generator>
       <SubType>Designer</SubType>
     </AndroidResource>
   </ItemGroup>

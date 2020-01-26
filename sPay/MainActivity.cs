@@ -14,6 +14,7 @@ namespace sPay
         {
             base.OnCreate(savedInstanceState);
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
+            AppCompatDelegate.CompatVectorFromResourcesEnabled = true;
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.main);
             ImageButton imageButton1 = FindViewById<ImageButton>(Resource.Id.imageButton1);
