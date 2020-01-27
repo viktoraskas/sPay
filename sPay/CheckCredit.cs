@@ -22,8 +22,8 @@ namespace sPay
     [Activity(Label = "ChekCredit")]
     public class CheckCredit : Activity
     {
-        //Receiver receiver;
-        //IntentFilter filter;
+        Receiver receiver;
+        IntentFilter filter;
         NfcAdapter mNfcAdapter;
         RestClient client;
 
@@ -35,41 +35,17 @@ namespace sPay
             ImageView imageView1 = FindViewById<ImageView>(Resource.Id.imageView1);
             ImageView imageView2 = FindViewById<ImageView>(Resource.Id.imageView2);
             imageView1.SetImageResource(Resource.Drawable.credit_card_outline);
-            // Create your application here
-            //receiver = new Receiver();
-            //receiver.NFCdiscovered += Receiver_NFCdiscovered;
-            //receiver.ConnectivityChanged += Receiver_ConnectivityChanged;
-            //receiver.TagDiscovered += Receiver_TagDiscovered;
-            //receiver.TrDiscovered += Receiver_TrDiscovered;
-            //filter = new IntentFilter();
-            //filter.AddAction("android.net.conn.CONNECTIVITY_CHANGE");
-            //filter.AddAction("android.nfc.action.TECH_DISCOVERED");
-            //filter.AddAction("android.nfc.action.ADAPTER_STATE_CHANGED");
-            //filter.AddAction("android.nfc.action.TRANSACTION_DETECTED");
+            receiver = new Receiver();
+            receiver.ConnectivityChanged += Receiver_ConnectivityChanged;
             mNfcAdapter = NfcAdapter.GetDefaultAdapter(this);
             client = new RestClient();
             client.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
         }
         #region Broadcast events
-        //private void Receiver_TrDiscovered(object sender, EventArgs e)
-        //{
-        //    Toast.MakeText(this, "Transaction", ToastLength.Short).Show();
-        //}
-
-        //private void Receiver_TagDiscovered(object sender, EventArgs e)
-        //{
-        //    Toast.MakeText(this, "TAG TAG TAG", ToastLength.Short).Show();
-        //}
-
-        //private void Receiver_ConnectivityChanged(object sender, EventArgs e)
-        //{
-        //    Toast.MakeText(this, "Receiver connectivity", ToastLength.Short).Show();
-        //}
-
-        //private void Receiver_NFCdiscovered(object sender, EventArgs e)
-        //{
-        //    Toast.MakeText(this, "Aptiktas RFID", ToastLength.Short).Show();
-        //}
+        private void Receiver_ConnectivityChanged(object sender, EventArgs e)
+        {
+            Toast.MakeText(this, "Receiver connectivity", ToastLength.Short).Show();
+        }
         #endregion
 
         protected override void OnNewIntent(Intent intent)
@@ -121,7 +97,7 @@ namespace sPay
         protected override void OnResume()
         {
             base.OnResume();
-            //_ = RegisterReceiver(receiver, filter);
+            _ = RegisterReceiver(receiver, filter);
 
             if (mNfcAdapter != null)
             {
@@ -142,7 +118,7 @@ namespace sPay
         protected override void OnPause()
         {
             base.OnPause();
-            //UnregisterReceiver(receiver);
+            UnregisterReceiver(receiver);
             if (mNfcAdapter != null) mNfcAdapter.DisableForegroundDispatch(this);
         }
         protected override void OnDestroy()
